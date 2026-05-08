@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Humana POC — AI Training Demos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+
+    font-family: 'DM Sans', sans-serif;
+
+    background: #F4F8F4;
+
+    color: #1A2B1A;
+
+    min-height: 100vh;
+
+    overflow: hidden;
+
+  }
+
+  .app-shell {
+
+    height: 100vh;
+
+    display: flex;
+
+    flex-direction: column;
+
+  }
+
+  .header {
+
+    background: #007B5E;
+
+    border-bottom: 1px solid #005F49;
+
+    padding: 14px 32px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    flex-shrink: 0;
+
+  }
+
+  .header-title {
+
+    font-family: 'DM Serif Display', serif;
+
+    font-size: 18px;
+
+    color: #ffffff;
+
+    letter-spacing: 0.02em;
+
+  }
+
+  .header-sub {
+
+    font-size: 11px;
+
+    color: rgba(255,255,255,0.7);
+
+    letter-spacing: 0.06em;
+
+    text-transform: uppercase;
+
+    margin-top: 2px;
+
+  }
+
+  .header-badge {
+
+    background: rgba(255,255,255,0.2);
+
+    color: #ffffff;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    letter-spacing: 0.1em;
+
+    text-transform: uppercase;
+
+    padding: 4px 10px;
+
+    border-radius: 4px;
+
+    border: 1px solid rgba(255,255,255,0.3);
+
+  }
+
+  .tab-bar {
+
+    display: flex;
+
+    padding: 0 32px;
+
+    background: #ffffff;
+
+    border-bottom: 2px solid #E0EDE0;
+
+    flex-shrink: 0;
+
+  }
+
+  .tab-btn {
+
+    padding: 14px 20px;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    letter-spacing: 0.04em;
+
+    color: #6B856B;
+
+    background: none;
+
+    border: none;
+
+    border-bottom: 2px solid transparent;
+
+    margin-bottom: -2px;
+
+    cursor: pointer;
+
+    transition: all 0.2s;
+
+    white-space: nowrap;
+
+    text-transform: uppercase;
+
+    font-family: 'DM Sans', sans-serif;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+  }
+
+  .tab-btn:hover { color: #1A2B1A; }
+
+  .tab-btn.active { color: #007B5E; border-bottom-color: #007B5E; }
+
+  .tab-num {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 18px;
+
+    height: 18px;
+
+    border-radius: 50%;
+
+    background: #E8F3E8;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    color: #6B856B;
+
+    flex-shrink: 0;
+
+  }
+
+  .tab-btn.active .tab-num { background: #007B5E; color: #ffffff; }
+
+  .demo-content { flex: 1; display: flex; overflow: hidden; }
+
+  .demo-panel { display: none; flex: 1; overflow: hidden; }
+
+  .demo-panel.active { display: flex; }
+
+  .sidebar {
+
+    width: 272px;
+
+    min-width: 272px;
+
+    background: #ffffff;
+
+    border-right: 1px solid #D8EDD8;
+
+    padding: 20px;
+
+    overflow-y: auto;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 16px;
+
+  }
+
+  .sidebar::-webkit-scrollbar { width: 4px; }
+
+  .sidebar::-webkit-scrollbar-thumb { background: #C8DEC8; border-radius: 2px; }
+
+  .sidebar-card {
+
+    background: #F4F8F4;
+
+    border: 1px solid #D8EDD8;
+
+    border-radius: 10px;
+
+    padding: 14px;
+
+  }
+
+  .sidebar-label {
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    letter-spacing: 0.1em;
+
+    text-transform: uppercase;
+
+    color: #00A657;
+
+    margin-bottom: 7px;
+
+  }
+
+  .sidebar-title {
+
+    font-family: 'DM Serif Display', serif;
+
+    font-size: 15px;
+
+    color: #1A2B1A;
+
+    line-height: 1.3;
+
+    margin-bottom: 7px;
+
+  }
+
+  .sidebar-desc { font-size: 12px; color: #6B856B; line-height: 1.6; }
+
+  .metric-row { display: flex; flex-direction: column; gap: 8px; }
+
+  .metric-item {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 9px 11px;
+
+    background: #ffffff;
+
+    border: 1px solid #D8EDD8;
+
+    border-radius: 8px;
+
+  }
+
+  .metric-label { font-size: 11px; color: #6B856B; }
+
+  .metric-val { font-size: 13px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: #00A657; }
+
+  .metric-val.warn { color: #E07B00; }
+
+  .metric-val.good { color: #007B5E; }
+
+  .metric-val.danger { color: #C0392B; }
+
+  .topic-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+
+  .topic-chip {
+
+    font-size: 11px; padding: 3px 8px; border-radius: 12px;
+
+    background: #EAF3EA; border: 1px solid #C8DEC8; color: #4A6B4A;
+
+    cursor: pointer; transition: all 0.15s;
+
+  }
+
+  .topic-chip:hover { background: #D0EAD0; border-color: #00A657; color: #007B5E; }
+
+  .diff-bar-wrap { padding: 11px 14px; background: #ffffff; border: 1px solid #D8EDD8; border-radius: 10px; }
+
+  .diff-bar-label { font-size: 11px; color: #6B856B; margin-bottom: 7px; display: flex; justify-content: space-between; align-items: center; }
+
+  .diff-bar-label span:last-child { font-weight: 700; }
+
+  .diff-track { height: 6px; border-radius: 3px; background: #E0EDE0; overflow: hidden; }
+
+  .diff-fill { height: 100%; border-radius: 3px; transition: width 0.8s ease, background 0.5s ease; }
+
+  .score-big-wrap { text-align: center; margin-top: 8px; }
+
+  .score-big { font-family: 'JetBrains Mono'; font-size: 26px; font-weight: 700; }
+
+  .score-sub { font-size: 10px; color: #6B856B; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+
+  .score-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+
+  .score-item { text-align: center; }
+
+  .score-num { font-family: 'JetBrains Mono'; font-size: 22px; font-weight: 700; }
+
+  .score-item-label { font-size: 10px; color: #6B856B; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  .score-bar { height: 4px; border-radius: 2px; background: #D8EDD8; margin-top: 5px; overflow: hidden; }
+
+  .score-fill-bar { height: 100%; border-radius: 2px; transition: width 1s ease; }
+
+  .coaching-tip {
+
+    margin-top: 12px; padding: 10px; background: #F4F8F4;
+
+    border-radius: 8px; font-size: 12px; color: #6B856B;
+
+    border-left: 3px solid #00A657; line-height: 1.5;
+
+  }
+
+  .coaching-tip strong { color: #00A657; }
+
+  .scoring-dim { margin-bottom: 8px; }
+
+  .scoring-dim-name { font-size: 12px; color: #1A2B1A; font-weight: 600; }
+
+  .scoring-dim-desc { font-size: 11px; color: #6B856B; }
+
+  .chat-area {
+
+    flex: 1;
+
+    display: flex;
+
+    flex-direction: column;
+
+    overflow: hidden;
+
+    background: #F9FCF9;
+
+  }
+
+  .chat-header {
+
+    padding: 14px 22px;
+
+    border-bottom: 1px solid #D8EDD8;
+
+    background: #ffffff;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    flex-shrink: 0;
+
+  }
+
+  .chat-header-left { display: flex; align-items: center; gap: 11px; }
+
+  .avatar {
+
+    width: 36px; height: 36px; border-radius: 50%;
+
+    display: flex; align-items: center; justify-content: center;
+
+    font-size: 13px; font-weight: 700; flex-shrink: 0; color: white;
+
+  }
+
+  .avatar.ai { background: linear-gradient(135deg, #00A657, #007B42); }
+
+  .avatar.user { background: linear-gradient(135deg, #007B5E, #005F49); }
+
+  .avatar.member { background: linear-gradient(135deg, #4A90D9, #2C6FAC); }
+
+  .persona-name { font-size: 14px; font-weight: 600; color: #1A2B1A; }
+
+  .persona-role { font-size: 11px; color: #6B856B; margin-top: 1px; }
+
+  .chat-header-right { display: flex; align-items: center; gap: 10px; }
+
+  .status-dot {
+
+    width: 8px; height: 8px; border-radius: 50%;
+
+    background: #007B5E; box-shadow: 0 0 6px #00A65766;
+
+    animation: pulse 2s infinite;
+
+  }
+
+  .status-dot.red { background: #C0392B; box-shadow: 0 0 6px #C0392B66; }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .level-badge {
+
+    font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 600;
+
+  }
+
+  .reset-btn {
+
+    padding: 6px 13px; border-radius: 7px;
+
+    background: #F4F8F4; border: 1px solid #C8DEC8;
+
+    color: #6B856B; font-size: 11px; font-weight: 600;
+
+    cursor: pointer; transition: all 0.2s;
+
+    letter-spacing: 0.04em; text-transform: uppercase;
+
+    font-family: 'DM Sans', sans-serif;
+
+  }
+
+  .reset-btn:hover { background: #E8F5EE; color: #007B5E; border-color: #00A657; }
+
+  .messages {
+
+    flex: 1; overflow-y: auto; padding: 18px 22px;
+
+    display: flex; flex-direction: column; gap: 14px;
+
+    scroll-behavior: smooth;
+
+  }
+
+  .messages::-webkit-scrollbar { width: 4px; }
+
+  .messages::-webkit-scrollbar-thumb { background: #C8DEC8; border-radius: 2px; }
+
+  .msg-row { display: flex; gap: 9px; align-items: flex-start; animation: fadeUp 0.3s ease; }
+
+  .msg-row.user { flex-direction: row-reverse; }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(7px)} to{opacity:1;transform:translateY(0)} }
+
+  .bubble {
+
+    max-width: 70%; padding: 11px 15px; border-radius: 12px;
+
+    font-size: 13.5px; line-height: 1.65; white-space: pre-wrap;
+
+  }
+
+  .bubble.ai {
+
+    background: #ffffff; border: 1px solid #C8E6C8; color: #2D3D2D;
+
+    border-top-left-radius: 3px; box-shadow: 0 1px 4px rgba(0,123,94,0.06);
+
+  }
+
+  .bubble.user {
+
+    background: linear-gradient(135deg, #007B5E, #005F49);
+
+    color: #ffffff; border-top-right-radius: 3px;
+
+    box-shadow: 0 2px 8px rgba(0,123,94,0.25);
+
+  }
+
+  .bubble.member {
+
+    background: #ffffff; border: 1px solid #B8D4F0; color: #2D3D2D;
+
+    border-top-left-radius: 3px; box-shadow: 0 1px 4px rgba(74,144,217,0.1);
+
+  }
+
+  .typing-indicator { display: flex; gap: 4px; align-items: center; padding: 4px 0; }
+
+  .typing-dot {
+
+    width: 6px; height: 6px; border-radius: 50%; background: #00A657;
+
+    animation: typing 1.2s infinite;
+
+  }
+
+  .typing-dot:nth-child(2){animation-delay:0.2s}
+
+  .typing-dot:nth-child(3){animation-delay:0.4s}
+
+  @keyframes typing { 0%,60%,100%{transform:translateY(0);opacity:0.4} 30%{transform:translateY(-5px);opacity:1} }
+
+  .quick-replies {
+
+    display: flex; flex-wrap: wrap; gap: 6px;
+
+    padding: 10px 22px 11px; background: #ffffff;
+
+    border-top: 1px solid #EEF5EE; flex-shrink: 0;
+
+  }
+
+  .qr-chip {
+
+    padding: 6px 12px; border-radius: 20px;
+
+    background: #F4F8F4; border: 1px solid #C8DEC8;
+
+    color: #3D5C3D; font-size: 12px; cursor: pointer;
+
+    transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+
+  }
+
+  .qr-chip:hover { background: #E8F5EE; border-color: #00A657; color: #007B5E; }
+
+  .input-bar {
+
+    padding: 14px 22px; border-top: 1px solid #D8EDD8;
+
+    background: #ffffff; display: flex; gap: 10px;
+
+    align-items: flex-end; flex-shrink: 0;
+
+  }
+
+  .input-wrap {
+
+    flex: 1; background: #F4F8F4; border: 1px solid #C8DEC8;
+
+    border-radius: 10px; display: flex; align-items: flex-end;
+
+    padding: 9px 13px; transition: all 0.2s;
+
+  }
+
+  .input-wrap:focus-within { border-color: #00A657; box-shadow: 0 0 0 3px rgba(0,166,87,0.1); }
+
+  .input-wrap textarea {
+
+    flex: 1; background: none; border: none; outline: none;
+
+    color: #1A2B1A; font-family: 'DM Sans', sans-serif;
+
+    font-size: 13.5px; resize: none; line-height: 1.5;
+
+    max-height: 100px; overflow-y: auto;
+
+  }
+
+  .input-wrap textarea::placeholder { color: #9DB89D; }
+
+  .send-btn {
+
+    width: 40px; height: 40px; border-radius: 10px;
+
+    background: #007B5E; border: none; cursor: pointer;
+
+    display: flex; align-items: center; justify-content: center;
+
+    color: white; font-size: 17px; transition: all 0.2s; flex-shrink: 0;
+
+  }
+
+  .send-btn:hover { background: #005F49; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,123,94,0.3); }
+
+  .send-btn:disabled { background: #C8DEC8; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .call-ready {
+
+    flex: 1; display: flex; flex-direction: column;
+
+    align-items: center; justify-content: center;
+
+    gap: 16px; padding: 40px; text-align: center;
+
+  }
+
+  .call-ready-icon { font-size: 44px; }
+
+  .call-ready-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: #1A2B1A; }
+
+  .call-ready-desc { font-size: 13px; color: #6B856B; max-width: 300px; line-height: 1.6; }
+
+  .answer-btn {
+
+    padding: 13px 30px; border-radius: 10px; background: #007B5E;
+
+    border: none; color: white; font-weight: 700; font-size: 14px;
+
+    cursor: pointer; letter-spacing: 0.03em; font-family: 'DM Sans', sans-serif;
+
+    transition: all 0.2s; box-shadow: 0 4px 14px rgba(0,123,94,0.3);
+
+  }
+
+  .answer-btn:hover { background: #005F49; transform: translateY(-1px); }
+</style>
+</head>
+<body>
+<div class="app-shell">
+<div class="header">
+<div>
+<div class="header-title">Humana POC — AI Training Demos</div>
+<div class="header-sub">Everise × EY · May 2026</div>
+</div>
+<div class="header-badge">POC Preview</div>
+</div>
+<div class="tab-bar">
+<button class="tab-btn active" onclick="switchTab(1)" id="tab1">
+<span class="tab-num">1</span>Socratic Benefits Tutor
+</button>
+<button class="tab-btn" onclick="switchTab(2)" id="tab2">
+<span class="tab-num">2</span>Adaptive Conversation Engine
+</button>
+<button class="tab-btn" onclick="switchTab(3)" id="tab3">
+<span class="tab-num">3</span>Live Member Call Simulator
+</button>
+</div>
+<div class="demo-content">
+<!-- DEMO 1 -->
+<div class="demo-panel active" id="panel1">
+<div class="sidebar">
+<div class="sidebar-card">
+<div class="sidebar-label">Demo 1</div>
+<div class="sidebar-title">Socratic Benefits Tutor</div>
+<div class="sidebar-desc">Teaches by asking guided questions. Builds deep reasoning instead of memorization — directly addressing the "script dependency" gap flagged in discovery.</div>
+</div>
+<div class="sidebar-card">
+<div class="sidebar-label">Session Progress</div>
+<div class="metric-row">
+<div class="metric-item"><span class="metric-label">Questions explored</span><span class="metric-val" id="d1-qcount">1</span></div>
+<div class="metric-item"><span class="metric-label">Reasoning depth</span><span class="metric-val" id="d1-reasoning">—</span></div>
+<div class="metric-item"><span class="metric-label">Accuracy signals</span><span class="metric-val" id="d1-accuracy">—</span></div>
+</div>
+</div>
+<div class="sidebar-card">
+<div class="sidebar-label">Topic Focus</div>
+<div class="topic-chips">
+<span class="topic-chip" onclick="d1Send('Let us practice a scenario about Benefits')">Benefits</span>
+<span class="topic-chip" onclick="d1Send('Let us practice a scenario about EOB')">EOB</span>
+<span class="topic-chip" onclick="d1Send('Let us practice a scenario about Deductibles')">Deductibles</span>
+<span class="topic-chip" onclick="d1Send('Let us practice a scenario about Copays')">Copays</span>
+<span class="topic-chip" onclick="d1Send('Let us practice a scenario about Authorizations')">Authorizations</span>
+<span class="topic-chip" onclick="d1Send('Let us practice a scenario about RX or Pharmacy')">RX/Pharmacy</span>
+<span class="topic-chip" onclick="d1Send('Let us practice a scenario about Payments')">Payments</span>
+</div>
+</div>
+</div>
+<div class="chat-area">
+<div class="chat-header">
+<div class="chat-header-left">
+<div class="avatar ai">AI</div>
+<div><div class="persona-name">Socratic Tutor</div><div class="persona-role">Benefits &amp; RX Knowledge Coach</div></div>
+</div>
+<div class="chat-header-right">
+<div class="status-dot"></div>
+<button class="reset-btn" onclick="d1Reset()">Reset</button>
+</div>
+</div>
+<div class="messages" id="d1-messages"></div>
+<div class="quick-replies">
+<span class="qr-chip" onclick="d1Send('I would explain what a deductible is')">I'd explain what a deductible is</span>
+<span class="qr-chip" onclick="d1Send('I would apologize and escalate')">I'd apologize and escalate</span>
+<span class="qr-chip" onclick="d1Send('I would ask what plan they are on')">I'd ask what plan they're on</span>
+<span class="qr-chip" onclick="d1Send('Tell me more about EOBs')">Tell me more about EOBs</span>
+</div>
+<div class="input-bar">
+<div class="input-wrap">
+<textarea id="d1-input" rows="1" placeholder="Type your response to the member scenario..." onkeydown="d1KeyDown(event)" oninput="autoResize(this)"></textarea>
+</div>
+<button class="send-btn" id="d1-send" onclick="d1Send()">→</button>
+</div>
+</div>
+</div>
+<!-- DEMO 2 -->
+<div class="demo-panel" id="panel2">
+<div class="sidebar">
+<div class="sidebar-card">
+<div class="sidebar-label">Demo 2</div>
+<div class="sidebar-title">Adaptive Benefits Conversation Engine</div>
+<div class="sidebar-desc">Content difficulty adjusts in real time. Advances when excelling, simplifies when struggling — tackling "superficial understanding despite high assessment scores."</div>
+</div>
+<div class="sidebar-card">
+<div class="sidebar-label">Difficulty Level</div>
+<div class="diff-bar-wrap">
+<div class="diff-bar-label">
+<span id="d2-level-label">Foundational</span>
+<span id="d2-level-pct" style="color:#00A657">25%</span>
+</div>
+<div class="diff-track">
+<div class="diff-fill" id="d2-diff-fill" style="width:25%;background:#00A657"></div>
+</div>
+</div>
+<div class="score-big-wrap" id="d2-score-wrap" style="display:none">
+<div class="score-big" id="d2-last-score"></div>
+<div class="score-sub">Last Answer Score</div>
+</div>
+</div>
+<div class="sidebar-card">
+<div class="sidebar-label">Performance Trend</div>
+<div class="metric-row">
+<div class="metric-item"><span class="metric-label">Questions answered</span><span class="metric-val" id="d2-qcount">0</span></div>
+<div class="metric-item"><span class="metric-label">Average score</span><span class="metric-val" id="d2-avg">—</span></div>
+<div class="metric-item"><span class="metric-label">Current level</span><span class="metric-val" id="d2-curr-level">Foundational</span></div>
+</div>
+</div>
+</div>
+<div class="chat-area">
+<div class="chat-header">
+<div class="chat-header-left">
+<div class="avatar ai">AI</div>
+<div><div class="persona-name">Adaptive Engine</div><div class="persona-role">Real-time difficulty personalisation</div></div>
+</div>
+<div class="chat-header-right">
+<div class="level-badge" id="d2-badge" style="background:#E8F5EE;border:1px solid #A8D8BC;color:#007B5E">Foundational</div>
+<button class="reset-btn" onclick="d2Reset()">Reset</button>
+</div>
+</div>
+<div class="messages" id="d2-messages"></div>
+<div class="quick-replies">
+<span class="qr-chip" onclick="d2Send('I am not sure, can you simplify?')">I'm not sure, can you simplify?</span>
+<span class="qr-chip" onclick="d2Send('I understand, give me a harder question')">I understand, give me harder</span>
+<span class="qr-chip" onclick="d2Send('What is a prior authorization?')">What's a prior authorization?</span>
+<span class="qr-chip" onclick="d2Send('Explain formulary tiers')">Explain formulary tiers</span>
+</div>
+<div class="input-bar">
+<div class="input-wrap">
+<textarea id="d2-input" rows="1" placeholder="Answer the question or ask for clarification..." onkeydown="d2KeyDown(event)" oninput="autoResize(this)"></textarea>
+</div>
+<button class="send-btn" id="d2-send" onclick="d2Send()">→</button>
+</div>
+</div>
+</div>
+<!-- DEMO 3 -->
+<div class="demo-panel" id="panel3">
+<div class="sidebar">
+<div class="sidebar-card">
+<div class="sidebar-label">Demo 3</div>
+<div class="sidebar-title">Live Member Call Simulator</div>
+<div class="sidebar-desc">A virtual Humana member calls in with a real issue. Handle the call using correct processes. Auto-scored on accuracy, empathy, and tool usage.</div>
+</div>
+<div class="sidebar-card" id="d3-status-card" style="display:none">
+<div class="sidebar-label">Call Status</div>
+<div class="metric-row">
+<div class="metric-item"><span class="metric-label">Duration</span><span class="metric-val" id="d3-timer">0:00</span></div>
+<div class="metric-item"><span class="metric-label">Member</span><span class="metric-val">Margaret</span></div>
+<div class="metric-item"><span class="metric-label">Status</span><span class="metric-val warn" id="d3-status">Live</span></div>
+</div>
+</div>
+<div class="sidebar-card" id="d3-scores-card" style="display:none">
+<div class="sidebar-label">Final Scores</div>
+<div class="score-grid" id="d3-score-grid"></div>
+<div class="coaching-tip" id="d3-coaching" style="display:none"></div>
+</div>
+<div class="sidebar-card">
+<div class="sidebar-label">Scoring Dimensions</div>
+<div class="scoring-dim"><div class="scoring-dim-name">Accuracy</div><div class="scoring-dim-desc">Correct info on benefits/RX</div></div>
+<div class="scoring-dim"><div class="scoring-dim-name">Empathy</div><div class="scoring-dim-desc">Tone, warmth, reassurance</div></div>
+<div class="scoring-dim"><div class="scoring-dim-name">Tool Usage</div><div class="scoring-dim-desc">References correct processes</div></div>
+</div>
+</div>
+<div class="chat-area">
+<div class="chat-header">
+<div class="chat-header-left">
+<div class="avatar member">M</div>
+<div>
+<div class="persona-name">Margaret, 67 — Humana Member</div>
+<div class="persona-role" id="d3-call-status">Ready to call in</div>
+</div>
+</div>
+<div class="chat-header-right" id="d3-header-right"></div>
+</div>
+<div class="messages" id="d3-messages">
+<div class="call-ready" id="d3-ready-screen">
+<div class="call-ready-icon">📞</div>
+<div class="call-ready-title">Incoming call simulation ready</div>
+<div class="call-ready-desc">A Humana member will call in with a real benefits or pharmacy issue. Handle it as a Tier 1 advocate would on the floor.</div>
+<button class="answer-btn" onclick="d3StartCall()">&#9654; Answer Call</button>
+</div>
+</div>
+<div id="d3-input-area" style="display:none">
+<div class="quick-replies">
+<span class="qr-chip" onclick="d3SetInput('Thank you for calling Humana, how can I help you today?')">Thank you for calling Humana, how can I help?</span>
+<span class="qr-chip" onclick="d3SetInput('I understand your frustration, let me look into this for you')">I understand your frustration, let me look into this</span>
+<span class="qr-chip" onclick="d3SetInput('Could I please get your member ID?')">Can I get your member ID please?</span>
+<span class="qr-chip" onclick="d3SetInput('Let me check your benefits in our system right now')">Let me check your benefits in the system</span>
+</div>
+<div class="input-bar">
+<div class="input-wrap">
+<textarea id="d3-input" rows="1" placeholder="Respond to the member..." onkeydown="d3KeyDown(event)" oninput="autoResize(this)"></textarea>
+</div>
+<button class="send-btn" id="d3-send" onclick="d3Send()">→</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+
+function autoResize(el) {
+
+  el.style.height = 'auto';
+
+  el.style.height = el.scrollHeight + 'px';
+
+}
+
+function switchTab(n) {
+
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i+1===n));
+
+  document.querySelectorAll('.demo-panel').forEach((p,i) => p.classList.toggle('active', i+1===n));
+
+}
+
+function scrollBottom(id) {
+
+  const el = document.getElementById(id);
+
+  if (el) el.scrollTop = el.scrollHeight;
+
+}
+
+function formatTime(s) {
+
+  return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
+
+}
+
+function scoreColor(v) {
+
+  return v >= 8 ? '#007B5E' : v >= 6 ? '#E07B00' : '#C0392B';
+
+}
+
+function appendMsg(containerId, role, text) {
+
+  const container = document.getElementById(containerId);
+
+  const row = document.createElement('div');
+
+  row.className = 'msg-row' + (role === 'user' ? ' user' : '');
+
+  const avatarClass = role === 'user' ? 'user' : role === 'member' ? 'member' : 'ai';
+
+  const avatarLabel = role === 'user' ? 'ME' : role === 'member' ? 'M' : 'AI';
+
+  const bubbleClass = role === 'user' ? 'user' : role === 'member' ? 'member' : 'ai';
+
+  row.innerHTML = `<div class="avatar ${avatarClass}" style="font-size:12px">${avatarLabel}</div><div class="bubble ${bubbleClass}">${escapeHtml(text)}</div>`;
+
+  container.appendChild(row);
+
+  scrollBottom(containerId);
+
+}
+
+function appendTyping(containerId, avatarClass, avatarLabel) {
+
+  const container = document.getElementById(containerId);
+
+  const row = document.createElement('div');
+
+  row.className = 'msg-row';
+row.id = containerId + '-typing';
+
+  row.innerHTML = `<div class="avatar ${avatarClass}" style="font-size:12px">${avatarLabel}</div><div class="bubble ai"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+
+  container.appendChild(row);
+
+  scrollBottom(containerId);
+
+}
+
+function removeTyping(containerId) {
+
+  const el = document.getElementById(containerId + '-typing');
+
+  if (el) el.remove();
+
+}
+
+function escapeHtml(t) {
+
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+}
+
+async function callClaude(system, messages) {
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+
+    method: 'POST',
+
+    headers: { 'Content-Type': 'application/json' },
+
+    body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: system, messages: messages })
+
+  });
+
+  const data = await res.json();
+
+  return data.content?.[0]?.text || 'Sorry, something went wrong.';
+
+}
+
+// ── DEMO 1 ──
+
+const D1_SYSTEM = `You are a Socratic Benefits Tutor for Humana Tier 1 advocate training. Your role is to teach through guided questions, NOT direct explanations.
+
+Core rules:
+
+- NEVER give the answer directly. Always guide the agent to reason through it.
+
+- Ask one focused question at a time.
+
+- When the agent is on the right track, affirm briefly, then probe deeper.
+
+- When the agent is wrong, ask a redirecting question — do not say "wrong."
+
+- Offer a hint only when the agent is stuck after 2 attempts. Prefix it: HINT: <short hint>
+
+- Topics: Benefits (medical coverage, deductibles, copays, authorizations, EOB, LAPs), Pharmacy (RX coverage, formulary, prior auth, 30/90-day supply), Payments, ID cards, Demographics.
+
+- Keep responses short (2-4 sentences max). Be warm, encouraging, coaching.`;
+
+let d1Messages = [], d1Loading = false, d1QuestionCount = 1;
+
+function d1Init() {
+
+  const opener = "Welcome, Advocate! I am your Benefits Tutor — but I won't be giving you the answers today.\n\nWe learn best by working through problems together. Let's start with Benefits.\n\nHere is your first scenario: A member calls in upset — they just got an Explanation of Benefits (EOB) and it shows they owe $200 for a specialist visit. They say: \"I thought I had insurance, why am I paying anything?\"\n\nWhat is your first instinct for how to respond?";
+
+  d1Messages = [{ role: 'assistant', content: opener }];
+
+  document.getElementById('d1-messages').innerHTML = '';
+
+  appendMsg('d1-messages', 'ai', opener);
+
+  d1QuestionCount = 1;
+
+  document.getElementById('d1-qcount').textContent = '1';
+
+  document.getElementById('d1-reasoning').textContent = '—';
+
+  document.getElementById('d1-accuracy').textContent = '—';
+
+}
+
+async function d1Send(preText) {
+
+  if (d1Loading) return;
+
+  const input = document.getElementById('d1-input');
+
+  const text = preText || input.value.trim();
+
+  if (!text) return;
+
+  input.value = ''; input.style.height = 'auto';
+
+  d1Messages.push({ role: 'user', content: text });
+
+  appendMsg('d1-messages', 'user', text);
+
+  d1Loading = true; document.getElementById('d1-send').disabled = true;
+
+  appendTyping('d1-messages', 'ai', 'AI');
+
+  try {
+
+    const reply = await callClaude(D1_SYSTEM, d1Messages);
+
+    removeTyping('d1-messages');
+
+    d1Messages.push({ role: 'assistant', content: reply });
+
+    appendMsg('d1-messages', 'ai', reply);
+
+    d1QuestionCount++;
+
+    document.getElementById('d1-qcount').textContent = d1QuestionCount;
+
+    document.getElementById('d1-reasoning').textContent = Math.min(95, 40 + d1QuestionCount * 8) + '%';
+
+    document.getElementById('d1-accuracy').textContent = Math.min(92, 30 + d1QuestionCount * 10) + '%';
+
+  } catch(e) { removeTyping('d1-messages'); appendMsg('d1-messages', 'ai', 'Sorry, there was an error. Please try again.'); }
+
+  d1Loading = false; document.getElementById('d1-send').disabled = false;
+
+}
+
+function d1KeyDown(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); d1Send(); } }
+
+function d1Reset() { d1Init(); }
+
+// ── DEMO 2 ──
+
+const D2_SYSTEM = `You are an Adaptive Benefits Learning Engine for Humana Tier 1 advocate training. You adjust difficulty in real time based on how the agent is performing.
+
+Rules:
+
+- You have 3 difficulty levels: Foundational, Intermediate, Advanced.
+
+- Start at Foundational. After 2 correct responses, move to Intermediate. After 2 more, move to Advanced.
+
+- If the agent struggles (wrong or unsure), drop back a level and explain the concept differently with a simpler example or analogy.
+
+- Always end your response with exactly one of these tags on its own line: [LEVEL: Foundational] [LEVEL: Intermediate] [LEVEL: Advanced] [LEVEL: Down - returning to Foundational] [LEVEL: Down - returning to Intermediate]
+
+- Also include [SCORE: X/10] where X reflects how well they answered (1-10).
+
+- Topic: Humana Benefits — medical coverage, deductibles, out-of-pocket maximums, network (in vs out), prior authorizations, pharmacy formulary tiers.
+
+- Keep tone encouraging, clear, and conversational. Max 4 sentences per response.`;
+
+const D2_DIFF = {
+
+  'Foundational': { pct: 25, color: '#00A657' },
+
+  'Intermediate': { pct: 58, color: '#007B5E' },
+
+  'Advanced': { pct: 92, color: '#007B5E' },
+
+  'Down - returning to Foundational': { pct: 15, color: '#C0392B' },
+
+  'Down - returning to Intermediate': { pct: 45, color: '#E07B00' },
+
+};
+
+let d2Messages = [], d2Loading = false, d2Level = 'Foundational', d2ScoreHistory = [];
+
+function d2Init() {
+
+  const opener = "Hi! I will adapt your training based on how you are doing — easier if you need support, harder as you improve.\n\nLet's begin at Foundational level.\n\nQuestion: A Humana member asks: \"What does my deductible mean?\" How would you explain it in plain language?";
+
+  d2Messages = [{ role: 'assistant', content: opener }];
+
+  document.getElementById('d2-messages').innerHTML = '';
+
+  appendMsg('d2-messages', 'ai', opener);
+
+  d2Level = 'Foundational'; d2ScoreHistory = [];
+
+  d2UpdateDiffUI('Foundational', null);
+
+  document.getElementById('d2-qcount').textContent = '0';
+
+  document.getElementById('d2-avg').textContent = '—';
+
+  document.getElementById('d2-score-wrap').style.display = 'none';
+
+}
+
+function d2UpdateDiffUI(level, score) {
+
+  const name = level.replace('Down - returning to ', '');
+
+  const cfg = D2_DIFF[level] || D2_DIFF['Foundational'];
+
+  document.getElementById('d2-level-label').textContent = name;
+
+  document.getElementById('d2-level-pct').textContent = cfg.pct + '%';
+
+  document.getElementById('d2-level-pct').style.color = cfg.color;
+
+  document.getElementById('d2-diff-fill').style.width = cfg.pct + '%';
+
+  document.getElementById('d2-diff-fill').style.background = cfg.color;
+
+  document.getElementById('d2-badge').textContent = name;
+
+  document.getElementById('d2-badge').style.color = cfg.color;
+
+  document.getElementById('d2-badge').style.borderColor = cfg.color + '88';
+
+  document.getElementById('d2-badge').style.background = cfg.color + '15';
+
+  document.getElementById('d2-curr-level').textContent = name;
+
+  if (score !== null) {
+
+    document.getElementById('d2-score-wrap').style.display = 'block';
+
+    document.getElementById('d2-last-score').textContent = score + '/10';
+
+    document.getElementById('d2-last-score').style.color = scoreColor(score);
+
+    d2ScoreHistory.push(score);
+
+    document.getElementById('d2-qcount').textContent = d2ScoreHistory.length;
+
+    const avg = Math.round(d2ScoreHistory.reduce((a,b)=>a+b,0)/d2ScoreHistory.length * 10);
+
+    document.getElementById('d2-avg').textContent = avg + '%';
+
+  }
+
+}
+
+async function d2Send(preText) {
+
+  if (d2Loading) return;
+
+  const input = document.getElementById('d2-input');
+
+  const text = preText || input.value.trim();
+
+  if (!text) return;
+
+  input.value = ''; input.style.height = 'auto';
+
+  d2Messages.push({ role: 'user', content: text });
+
+  appendMsg('d2-messages', 'user', text);
+
+  d2Loading = true; document.getElementById('d2-send').disabled = true;
+
+  appendTyping('d2-messages', 'ai', 'AI');
+
+  try {
+
+    const reply = await callClaude(D2_SYSTEM, d2Messages);
+
+    removeTyping('d2-messages');
+
+    const lm = reply.match(/\[LEVEL: ([^\]]+)\]/);
+
+    const sm = reply.match(/\[SCORE: (\d+)\/10\]/);
+
+    const clean = reply.replace(/\[LEVEL:[^\]]+\]/g,'').replace(/\[SCORE:[^\]]+\]/g,'').trim();
+
+    if (lm) d2Level = lm[1];
+
+    d2UpdateDiffUI(d2Level, sm ? parseInt(sm[1]) : null);
+
+    d2Messages.push({ role: 'assistant', content: reply });
+
+    appendMsg('d2-messages', 'ai', clean);
+
+  } catch(e) { removeTyping('d2-messages'); appendMsg('d2-messages', 'ai', 'Sorry, there was an error. Please try again.'); }
+
+  d2Loading = false; document.getElementById('d2-send').disabled = false;
+
+}
+
+function d2KeyDown(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); d2Send(); } }
+
+function d2Reset() { d2Init(); }
+
+// ── DEMO 3 ──
+
+const D3_SYSTEM = `You are playing the role of a Humana health insurance member calling in to the contact center. You have a real problem and you are talking to a new Tier 1 advocate.
+
+Your persona: Margaret, 67, retired teacher from Louisville, KY. Warm but can get frustrated if the agent is not helpful or takes too long. You are calling about ONE of these issues (pick based on context, but stay consistent):
+
+- Your specialist referral was denied and you do not understand why
+
+- Your prescription copay suddenly doubled this month
+
+- You received a bill for a service you thought was covered
+
+Rules:
+
+- Respond as Margaret naturally would — not as an AI assistant.
+
+- React authentically: if the agent is empathetic and knowledgeable, warm up. If they are evasive or robotic, get more frustrated.
+
+- After 5-6 exchanges, end with [CALL_COMPLETE] and then provide scoring on a new line:
+
+  [ACCURACY: X/10]
+
+  [EMPATHY: X/10]
+
+  [TOOL_USAGE: X/10]
+
+  [OVERALL: X/10]
+
+  [FEEDBACK: One specific coaching tip]
+
+- Keep each response 2-4 sentences. Stay in character as Margaret.`;
+
+let d3Messages = [], d3Loading = false, d3CallActive = false, d3CallComplete = false, d3TimerInterval = null, d3Seconds = 0;
+
+async function d3StartCall() {
+
+  d3CallActive = true; d3Loading = true;
+
+  document.getElementById('d3-ready-screen').style.display = 'none';
+
+  document.getElementById('d3-status-card').style.display = 'block';
+
+  document.getElementById('d3-call-status').textContent = 'Inbound call in progress';
+
+  document.getElementById('d3-header-right').innerHTML = '<div class="status-dot red"></div>';
+
+  d3Seconds = 0;
+
+  d3TimerInterval = setInterval(() => { d3Seconds++; document.getElementById('d3-timer').textContent = formatTime(d3Seconds); }, 1000);
+
+  appendTyping('d3-messages', 'member', 'M');
+
+  try {
+
+    const opening = { role: 'user', content: "Hello, I need help with my insurance. I am very confused and a little upset." };
+
+    const reply = await callClaude(D3_SYSTEM, [opening]);
+
+    removeTyping('d3-messages');
+
+    d3Messages = [{ role: 'user', content: opening.content }, { role: 'assistant', content: reply }];
+
+    appendMsg('d3-messages', 'member', opening.content);
+
+    appendMsg('d3-messages', 'member', reply);
+
+    document.getElementById('d3-input-area').style.display = 'block';
+
+  } catch(e) { removeTyping('d3-messages'); appendMsg('d3-messages', 'member', 'Sorry, there was an error starting the call.'); }
+
+  d3Loading = false;
+
+}
+
+async function d3Send() {
+
+  if (d3Loading || !d3CallActive || d3CallComplete) return;
+
+  const input = document.getElementById('d3-input');
+
+  const text = input.value.trim();
+
+  if (!text) return;
+
+  input.value = ''; input.style.height = 'auto';
+
+  d3Messages.push({ role: 'user', content: text });
+
+  appendMsg('d3-messages', 'user', text);
+
+  d3Loading = true; document.getElementById('d3-send').disabled = true;
+
+  appendTyping('d3-messages', 'member', 'M');
+
+  try {
+
+    const reply = await callClaude(D3_SYSTEM, d3Messages.map(m => ({ role: m.role, content: m.content })));
+
+    removeTyping('d3-messages');
+
+    if (reply.includes('[CALL_COMPLETE]')) {
+
+      const clean = reply.split('[CALL_COMPLETE]')[0].trim();
+
+      if (clean) { d3Messages.push({ role: 'assistant', content: clean }); appendMsg('d3-messages', 'member', clean); }
+
+      d3EndCall(reply);
+
+    } else {
+
+      d3Messages.push({ role: 'assistant', content: reply });
+
+      appendMsg('d3-messages', 'member', reply);
+
+    }
+
+  } catch(e) { removeTyping('d3-messages'); appendMsg('d3-messages', 'member', 'Sorry, there was a connection error.'); }
+
+  d3Loading = false; document.getElementById('d3-send').disabled = false;
+
+}
+
+function d3EndCall(fullReply) {
+
+  d3CallComplete = true; clearInterval(d3TimerInterval);
+
+  document.getElementById('d3-call-status').textContent = 'Call ended';
+
+  document.getElementById('d3-status').textContent = 'Complete';
+
+  document.getElementById('d3-status').className = 'metric-val good';
+
+  document.getElementById('d3-input-area').style.display = 'none';
+
+  document.getElementById('d3-header-right').innerHTML = '<button class="reset-btn" onclick="d3Reset()">New Call</button>';
+
+  const get = (key) => { const m = fullReply.match(new RegExp('\\[' + key + ': (\\d+)/10\\]')); return m ? parseInt(m[1]) : null; };
+
+  const fb = fullReply.match(/\[FEEDBACK: ([^\]]+)\]/);
+
+  const scores = { accuracy: get('ACCURACY'), empathy: get('EMPATHY'), tool: get('TOOL_USAGE'), overall: get('OVERALL'), feedback: fb ? fb[1] : null };
+
+  document.getElementById('d3-scores-card').style.display = 'block';
+
+  const grid = document.getElementById('d3-score-grid');
+
+  grid.innerHTML = '';
+
+  [['Accuracy', scores.accuracy], ['Empathy', scores.empathy], ['Tool Usage', scores.tool], ['Overall', scores.overall]].forEach(([label, val]) => {
+
+    if (val === null) return;
+
+    const color = scoreColor(val);
+
+    const item = document.createElement('div');
+
+    item.className = 'score-item';
+
+    item.innerHTML = `<div class="score-num" style="color:${color}">${val}</div><div class="score-item-label">${label}</div><div class="score-bar"><div class="score-fill-bar" style="width:${val*10}%;background:${color}"></div></div>`;
+
+    grid.appendChild(item);
+
+  });
+
+  if (scores.feedback) {
+
+    const tip = document.getElementById('d3-coaching');
+
+    tip.style.display = 'block';
+
+    tip.innerHTML = '<strong>💡 Coaching tip: </strong>' + escapeHtml(scores.feedback);
+
+  }
+
+}
+
+function d3SetInput(text) { const inp = document.getElementById('d3-input'); inp.value = text; autoResize(inp); inp.focus(); }
+
+function d3KeyDown(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); d3Send(); } }
+
+function d3Reset() {
+
+  d3CallActive = false; d3CallComplete = false; d3Loading = false; d3Messages = [];
+
+  clearInterval(d3TimerInterval); d3Seconds = 0;
+
+  document.getElementById('d3-messages').innerHTML = `<div class="call-ready" id="d3-ready-screen"><div class="call-ready-icon">📞</div><div class="call-ready-title">Incoming call simulation ready</div><div class="call-ready-desc">A Humana member will call in with a real benefits or pharmacy issue. Handle it as a Tier 1 advocate would on the floor.</div><button class="answer-btn" onclick="d3StartCall()">&#9654; Answer Call</button></div>`;
+
+  document.getElementById('d3-input-area').style.display = 'none';
+
+  document.getElementById('d3-status-card').style.display = 'none';
+
+  document.getElementById('d3-scores-card').style.display = 'none';
+
+  document.getElementById('d3-coaching').style.display = 'none';
+
+  document.getElementById('d3-call-status').textContent = 'Ready to call in';
+
+  document.getElementById('d3-header-right').innerHTML = '';
+
+  document.getElementById('d3-timer').textContent = '0:00';
+
+}
+
+d1Init();
+
+d2Init();
+</script>
+</body>
+</html>
+ 
