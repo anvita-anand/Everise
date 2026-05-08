@@ -126,19 +126,6 @@
 </style>
 </head>
 <body>
-<div class="modal-overlay" id="api-modal">
-<div class="modal-box">
-<div class="modal-logo">🎓</div>
-<div class="modal-title">Humana AI Training Demos</div>
-<div class="modal-sub">Enter your Anthropic API key to activate the live AI demos. Your key is used only in this browser session and never stored.</div>
-<div class="modal-label">Anthropic API Key</div>
-<input class="modal-input" type="password" id="api-key-input" placeholder="sk-ant-..." onkeydown="if(event.key==='Enter') submitKey()" />
-<div class="modal-hint">Get your key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> &rarr; API Keys.</div>
-<button class="modal-btn" onclick="submitKey()">Activate Demos &rarr;</button>
-<div class="modal-error" id="modal-error">Invalid key — please check and try again.</div>
-</div>
-</div>
-<div class="key-badge" id="key-badge" style="display:none" onclick="resetKey()">🔑 API Key set &middot; click to change</div>
 <div class="app-shell">
 <div class="header">
 <div>
@@ -344,33 +331,20 @@ function appendTyping(cid,ac,al) {
 }
 function removeTyping(cid) { const el=document.getElementById(cid+'-typing'); if(el) el.remove(); }
 function escapeHtml(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-let ANTHROPIC_API_KEY='';
-function submitKey() {
- const val=document.getElementById('api-key-input').value.trim();
- const err=document.getElementById('modal-error');
- if(!val.startsWith('sk-')) { err.style.display='block'; err.textContent='Key should start with sk-... please check and try again.'; return; }
- ANTHROPIC_API_KEY=val;
- document.getElementById('api-modal').style.display='none';
- document.getElementById('key-badge').style.display='block';
-}
-function resetKey() {
- ANTHROPIC_API_KEY='';
- document.getElementById('api-key-input').value='';
- document.getElementById('modal-error').style.display='none';
- document.getElementById('api-modal').style.display='flex';
- document.getElementById('key-badge').style.display='none';
-}
-async function callClaude(system,messages) {
- if(!ANTHROPIC_API_KEY){resetKey();throw new Error('No API key');}
+
 const res=await fetch('https://humana-proxy.onrender.com/api/chat',{
-   method:'POST',
-   headers:{'Content-Type':'application/json'},
-   body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:system,messages:messages})
- });
- const data=await res.json();
- if(data.error) throw new Error(data.error.message);
- return data.content?.[0]?.text||'Sorry, something went wrong.';
+ 
+async function callClaude(system,messages) {
+  const res=await fetch('https://humana-proxy.onrender.com/api/chat',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:system,messages:messages})
+  });
+  const data=await res.json();
+  if(data.error) throw new Error(data.error.message);
+  return data.content?.[0]?.text||'Sorry, something went wrong.';
 }
+ 
 // DEMO 1
 const D1_SYSTEM=`You are a Socratic Benefits Tutor for Humana Tier 1 advocate training. Teach through guided questions only, never give answers directly. Ask one question at a time. When right, affirm briefly then probe deeper. When wrong, redirect with a question. Offer hints (prefix HINT:) only after 2 failed attempts. Topics: Benefits, EOB, deductibles, copays, authorizations, LAPs, Pharmacy/RX, formulary, prior auth, Payments, ID cards. Keep responses 2-4 sentences. Be warm and encouraging.`;
 let d1Messages=[],d1Loading=false,d1Q=1;
