@@ -648,6 +648,20 @@
 </style>
 </head>
 <body>
+<div class="modal-overlay" id="api-modal">
+<div class="modal-box">
+<div class="modal-logo">🎓</div>
+<div class="modal-title">Humana AI Training Demos</div>
+<div class="modal-sub">Enter your Anthropic API key to activate the live AI demos. Your key is used only in this browser session and never stored.</div>
+<div class="modal-label">Anthropic API Key</div>
+<input class="modal-input" type="password" id="api-key-input" placeholder="sk-ant-..." onkeydown="if(event.key==='Enter') submitKey()" />
+<div class="modal-hint">Get your key at <a href=" https://console.anthropic.com" target="_blank">console.anthropic.com</a> → API Keys.</div>
+<button class="modal-btn" onclick="submitKey()">Activate Demos →</button>
+<div class="modal-error" id="modal-error">Invalid key — please check and try again.</div>
+</div>
+</div>
+<div class="key-badge" id="key-badge" style="display:none" onclick="resetKey()">🔑 API Key set · click to change</div>
+
 <div class="app-shell">
 <div class="header">
 <div>
@@ -938,17 +952,43 @@ function escapeHtml(t) {
 
 }
 
+let ANTHROPIC_API_KEY = '';
+
+function submitKey() {
+ const val = document.getElementById('api-key-input').value.trim();
+ if (!val.startsWith('sk-')) {
+   document.getElementById('modal-error').style.display = 'block';
+   return;
+ }
+ ANTHROPIC_API_KEY = val;
+ document.getElementById('api-modal').style.display = 'none';
+ document.getElementById('key-badge').style.display = 'block';
+}
+
+function resetKey() {
+ ANTHROPIC_API_KEY = '';
+ document.getElementById('api-key-input').value = '';
+ document.getElementById('modal-error').style.display = 'none';
+ document.getElementById('api-modal').style.display = 'flex';
+ document.getElementById('key-badge').style.display = 'none';
+}
+
 async function callClaude(system, messages) {
-
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-
-    method: 'POST',
-
-    headers: { 'Content-Type': 'application/json' },
-
-    body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: system, messages: messages })
-
-  });
+ if (!ANTHROPIC_API_KEY) { resetKey(); throw new Error('No API key'); }
+ const res = await fetch(' https://api.anthropic.com/v1/messages', {
+   method: 'POST',
+   headers: {
+     'Content-Type': 'application/json',
+     'x-api-key': ANTHROPIC_API_KEY,
+     'anthropic-version': '2023-06-01',
+     'anthropic-dangerous-direct-browser-access': 'true'
+   },
+   body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: system, messages: messages })
+ });
+ const data = await res.json();
+ if (data.error) throw new Error(data.error.message);
+ return data.content?.[0]?.text || 'Sorry, something went wrong.';
+}
 
   const data = await res.json();
 
@@ -1410,4 +1450,3 @@ d2Init();
 </script>
 </body>
 </html>
- 
